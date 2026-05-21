@@ -1,0 +1,12 @@
+{
+  "name": "nominalpowers",
+  "version": "0.1.0",
+  "description": "Engineering skills for Nominal Industries projects: the lead-thread workflow, subagent dispatch, external-validator discipline, staged TDD, and the Nominal Tauri scaffold. The code layer that pairs with spicypowers.",
+  "author": {
+    "name": "Nominal Industries"
+  },
+  "homepage": "https://github.com/nominalindustries/nominalpowers",
+  "repository": "https://github.com/nominalindustries/nominalpowers",
+  "license": "MIT",
+  "keywords": ["skills", "spicy-brain", "collaboration", "best-practices", "workflows", "debugging"]
+}

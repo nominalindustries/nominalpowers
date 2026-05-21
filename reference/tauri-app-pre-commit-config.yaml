@@ -1,0 +1,75 @@
+# Nominal Industries — Tauri App pre-commit configuration
+# https://pre-commit.com/
+#
+# Install:  pre-commit install
+# Run all:  pre-commit run --all-files
+# Update:   pre-commit autoupdate
+#
+# Copied from steep/.pre-commit-config.yaml (same Tauri 2 layout where
+# Cargo.toml lives in src-tauri/ rather than the repo root).
+
+repos:
+  # ── General file hygiene ──────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-toml
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: check-json
+        # tsconfig.json (and any tsconfig.*.json variants) are JSONC —
+        # TypeScript allows `//` and `/* */` comments. The stock
+        # check-json hook is strict JSON only, so skip tsconfig files.
+        # Tauri's JSON configs (tauri.conf.json, capabilities/*.json)
+        # are strict JSON and stay in scope.
+        exclude: ^(tsconfig\.json|tsconfig\..*\.json)$
+
+  # ── Rust: cargo fmt + clippy (runs from src-tauri/) ────────────────
+  # Local hooks because the Codeberg pre-commit-rust hooks assume
+  # Cargo.toml is at the repo root. Tauri puts it in src-tauri/.
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: cargo fmt
+        entry: cargo fmt --manifest-path src-tauri/Cargo.toml --all --
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: cargo-clippy
+        name: cargo clippy
+        entry: cargo clippy --message-format short --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      # ── TypeScript typecheck ───────────────────────────────────────
+      # Superlaser has the React frontend under src/; Steep is vanilla
+      # JS so this hook doesn't apply there. Kept local so contributors
+      # don't need a hosted typecheck hook.
+      - id: tsc
+        name: tsc --noEmit
+        entry: npx tsc --noEmit
+        language: system
+        types_or: [ts, tsx]
+        pass_filenames: false
+
+      # ── Frontend tests (vitest) ────────────────────────────────────
+      # Stream F (v0.6) wired vitest + @testing-library/react + jsdom.
+      # `npm test` resolves to `vitest run` — uses the npm script so the
+      # hook stays in sync if the test command grows flags later. Whole
+      # suite runs (vitest doesn't reliably pick up the right files from
+      # changed-paths alone — affected-test detection isn't worth the
+      # flakiness for a sub-second suite). Triggers on any TS/TSX edit
+      # since component changes can break tests living elsewhere.
+      - id: vitest
+        name: vitest run
+        entry: npm test --silent
+        language: system
+        types_or: [ts, tsx]
+        pass_filenames: false
