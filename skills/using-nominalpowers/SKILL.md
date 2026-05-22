@@ -41,6 +41,8 @@ Spicy-brain vocabulary (brain dump, thought parade, SBTB) lives in spicypowers' 
 
 ## The rest of nominalpowers
 
+### Engineering practices
+
 - **complaint-driven-development** - turning a complaint into a feature spec.
 - **lead-thread-workflow** - running a project as lead thread plus dispatched subagents.
 - **dispatching-subagents** - the mechanics of one dispatch and the two-stage review of its result.
@@ -54,4 +56,12 @@ Spicy-brain vocabulary (brain dump, thought parade, SBTB) lives in spicypowers' 
 - **verification-before-completion** - proving work is done before claiming it.
 - **finishing-a-branch** - merging, PR, or discarding, and cleaning up.
 - **design-for-failure** - blast-radius isolation in architecture.
+
+### Nominal app conventions
+
+- **nominal-four-doc-standard** - the four-doc layout (README, CLAUDE, HUMANS, PLAN) plus `notes/STREAM.md` and the invariants ladder.
 - **nominal-tauri-scaffold** - bootstrapping a new Nominal Tauri 2 app.
+- **nominal-tauri-capabilities** - the capability file landmines (drag attribute, clipboard write/read, updater-process pair).
+- **nominal-sdk-extraction** - when code belongs in `nominal-sdks-rust` rather than the app repo.
+- **nominal-updater-pipeline** - the deploy script + R2 + Cloudflare Worker + mini-site chain.
+- **nominal-app-aesthetic** - per-app aesthetic spine, treated as a release gate.

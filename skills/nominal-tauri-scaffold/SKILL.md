@@ -28,6 +28,22 @@ The common Nominal Tauri stack, adjust per app:
 
 Confirm the stack with your human partner per app rather than assuming. The layout and the validator philosophy are constant, the specific tiers are not.
 
+## What ships at scaffold time
+
+A new Nominal Tauri app starts with more than just the Tauri default. The full scaffold includes:
+
+- **Identifier:** `industries.nominal.<appname>` in `tauri.conf.json` (`identifier` field). Reverse-DNS, not the bare app name.
+- **Window defaults:** `tauri.conf.json` `windows[0]` carries a fixed size for utility apps that should not resize (set `width = minWidth` and `height = minHeight`). `titleBarStyle: "Overlay"` and `hiddenTitle: true` for the macOS hidden-titlebar pattern; the traffic-light buttons offset via `trafficLightPosition`. Worked examples in SuperEntropy and Nibble.
+- **Plugin set:** Nominal-standard plugins added to `Cargo.toml` and the `Builder` chain at scaffold time: `tauri-plugin-clipboard-manager`, `tauri-plugin-store`, `tauri-plugin-window-state`, `tauri-plugin-log`. The updater pair (`tauri-plugin-updater` + `tauri-plugin-process`) is added when the app is ready to ship its first update; see `nominal-updater-pipeline`.
+- **Capabilities:** `src-tauri/capabilities/default.json` carries every plugin's `:default` permission plus the explicit permissions for what the app actually calls. The recurring capability landmines (drag attribute, clipboard write/read, updater-process pair) live in `nominal-tauri-capabilities`.
+- **Icons:** generated once from a source SVG via `npx @tauri-apps/cli icon path/to/icon.svg`. The full set lands in `src-tauri/icons/`. The release-notes mini-site's `site/<app>/icon.png` is a copy of `src-tauri/icons/icon.png`.
+- **Four-doc + STREAM:** README, CLAUDE, HUMANS, PLAN at the repo root, plus `notes/STREAM.md` for ambient state. Roles, granularity, and the invariants-ladder pattern in `nominal-four-doc-standard`.
+- **Aesthetic spine:** picked at scaffold time, not retrofitted. Palette, typography, motion notes written into CLAUDE.md so subagent dispatches inherit them. See `nominal-app-aesthetic`.
+
+The principle is constant, the specifics adjust per app. A menu-bar utility (Nibble) needs less clipboard surface than a generator (SuperEntropy); a file-management app may need `fs:` capabilities a utility does not; a long-lived data app (DeepDive) carries SQLite that a stateless utility does not.
+
+A sibling cowork plugin at `nominal-cowork-plugins/<appname>/` is **not** a scaffold-time concern. Add it once the app's vision and code have stabilized, so the plugin is not chasing the app in a circle. The payoff is biggest for apps that ship an MCP server, since the cowork plugin is the natural carrier for the MCP config and makes the integration easier to share across machines and collaborators. Building the plugin too early means re-doing it as the app finds its shape.
+
 ## External validators from commit one
 
 Every Nominal Tauri app ships a `pre-commit` config before real work starts, see `external-validators`. The standard set:
@@ -54,9 +70,13 @@ Every such deviation gets a comment explaining why. The next reader needs the re
 | `tsc` or `vitest` hooks on a vanilla-JS app | Those validators do not apply. Match the hook set to the stack. |
 | Real work started before pre-commit was configured | Validators ship from commit one, not added later. |
 | A config deviation has no explanatory comment | Document why every deviation exists. |
+| App identifier is the bare app name (`superentropy`) rather than reverse-DNS (`industries.nominal.superentropy`) | Use the reverse-DNS form so identifiers do not collide across the portfolio. |
+| Repo has only `README.md`, no CLAUDE / HUMANS / PLAN | Four-doc standard not applied. See `nominal-four-doc-standard`. |
+| Aesthetic was not picked at scaffold time | App will accumulate visual drift. See `nominal-app-aesthetic`. |
 
 ## Rationalizations to reject
 
 - "I will add pre-commit once the app is further along." Validators are the floor and they ship first. Set them up at scaffold time.
 - "The hosted Rust hooks are simpler." They assume a root manifest and will not find Tauri's. Local hooks are the correct, not the lazy, choice.
 - "Everyone knows why the config is set up this way." The next reader, often a future you, does not. Comment it.
+- "Pick the aesthetic after the features work." Picking late produces drift and rework. The aesthetic shapes which features get built and how they surface. Pick at scaffold time, see `nominal-app-aesthetic`.
