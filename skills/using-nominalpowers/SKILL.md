@@ -62,6 +62,10 @@ Spicy-brain vocabulary (brain dump, thought parade, SBTB) lives in spicypowers' 
 - **nominal-four-doc-standard** - the four-doc layout (README, CLAUDE, HUMANS, PLAN) plus `notes/STREAM.md` and the invariants ladder.
 - **nominal-tauri-scaffold** - bootstrapping a new Nominal Tauri 2 app.
 - **nominal-tauri-capabilities** - the capability file landmines (drag attribute, clipboard write/read, updater-process pair).
+- **nominal-tauri-ipc-shape** - the Rust↔TypeScript boundary conventions (hand-written mirrors, snake_case via serde, single-channel events).
+- **nominal-tauri-state-pattern** - the `Arc<Mutex<AppState>>` shape, lock-inside-the-handler discipline, save_X helpers.
+- **nominal-async-cleanup-patterns** - the spawn_blocking abort trap, cancellation cascade, try_clone for shared OS resources.
+- **nominal-persistent-collections** - persisting a collection of dynamic things (tabs, snippets, bookmarks) cleanly across launches.
 - **nominal-sdk-extraction** - when code belongs in `nominal-sdks-rust` rather than the app repo.
 - **nominal-updater-pipeline** - the deploy script + R2 + Cloudflare Worker + mini-site chain.
 - **nominal-app-aesthetic** - per-app aesthetic spine, treated as a release gate.

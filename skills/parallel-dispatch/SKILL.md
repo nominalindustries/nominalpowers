@@ -22,6 +22,27 @@ Fires when the lead thread is holding multiple tasks and is deciding whether to 
 5. **Integrate one at a time, re-verifying.** Bring parallel results back in sequence. After each integration, run the validators again before integrating the next. Two results that each passed in isolation can still conflict once combined.
 6. **Sequence the dependent remainder.** Tasks that did not qualify as independent run after, in dependency order. Do not force parallelism that the dependency graph does not allow.
 
+## What the lead does during the parallel window
+
+A subagent is running. Another subagent is running. The lead thread is **not** idle. The right move is to pick up work that touches **a third, disjoint set of files** that neither subagent will read or write, finish it inline, and have it ready to integrate alongside the parallel results.
+
+Good candidates for inline lead work during a parallel window:
+
+- **Small fixes in directories nobody else is touching.** A cosmetic bug in a different module, a documentation update, a missed test case.
+- **Test coverage for a stable surface.** A pure-function test, a unit test for a module the parallel subagents do not touch.
+- **A separate SDK crate the app depends on.** If the app's parallel subagents work in `src-tauri/` and `src/app/`, the lead can extend a `nominal-sdks-rust/` crate the app consumes, then the results integrate at three different layers without conflict.
+- **Refining the PLAN.md or session log** so the project's state document is current when the subagents return.
+
+Bad candidates:
+
+- **Anything in a file a parallel subagent might touch.** Even if the subagent does not change that file, reading it and showing a diff against an old version is confusing.
+- **Anything in a file the subagent's prompt named.** Disqualified by overlap.
+- **A second parallel dispatch.** You are already at capacity for what one lead can integrate cleanly; adding more makes the integration window scale poorly.
+
+The principle is the same as for the subagents: partition the file surface, prevent collision. The lead just gets the third partition.
+
+When the parallel subagents return, integrate them one at a time per the rest of this skill, then the lead's inline work merges last as a fourth integration. Re-verify between each.
+
 ## Red flags
 
 | Symptom | What it means |
@@ -31,9 +52,12 @@ Fires when the lead thread is holding multiple tasks and is deciding whether to 
 | Parallel work happened in a shared workspace | No isolation. Each dispatch needs its own worktree. |
 | All parallel results were merged at once, then validated | Integrate one at a time, re-verify between each. |
 | You parallelized to feel fast, not because tasks were independent | False parallelism. The merge cost erases the gain. |
+| The lead sat idle during the parallel window | Wasted budget. Pick up a third disjoint task and have it ready to integrate. |
+| The lead's parallel-window task touched a file a subagent also touched | Now there are three sources of change on one file. Partition the lead's surface too. |
 
 ## Rationalizations to reject
 
 - "These tasks are probably independent enough." Probably is not good enough. Verify the file surfaces do not overlap.
 - "I will sort out the conflicts at integration." Conflicts at integration are the cost parallel dispatch is supposed to avoid. Prevent them by partitioning.
 - "Validating once after all merges is faster." It is faster until two results conflict and you cannot tell which. Re-verify between integrations.
+- "The lead should just wait so it can integrate as soon as a subagent returns." Subagents take minutes. The lead can finish a third disjoint task in that window. Wait-only is wasted budget.
