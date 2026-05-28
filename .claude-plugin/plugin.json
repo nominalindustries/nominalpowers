@@ -1,7 +1,7 @@
 {
   "name": "nominalpowers",
   "displayName": "Nominal Powers",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Engineering skills for Nominal Industries projects: the lead-thread workflow, subagent dispatch, external-validator discipline, staged TDD, and the Nominal Tauri scaffold. The code layer that pairs with spicypowers.",
   "author": {
     "name": "Nominal Industries"
