@@ -1,10 +1,5 @@
-# Generated per-skill zips for chat-mode upload (see build-skill-zips.sh).
-# Regenerate locally; never commit.
-build/
-*.zip
 # OS / editor cruft
 .DS_Store
 .claude/
 .worktrees/
-.claude/
 node_modules/
